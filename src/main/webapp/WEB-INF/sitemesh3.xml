@@ -1,0 +1,3 @@
+<sitemesh>
+    <mapping path="/admin/*" decorator="/layout/admin-decorator.jsp"/>
+</sitemesh>
