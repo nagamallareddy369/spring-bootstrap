@@ -5,6 +5,7 @@ import com.boostrap.sample.domain.User;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.ModelAndView;
 
 import java.util.HashMap;
 import java.util.List;
@@ -22,8 +23,8 @@ public class UserController {
 
     @RequestMapping(value = "/list", method = RequestMethod.GET)
     @ResponseBody
-    public List<User> list() {
-        return userService.listUser();
+    public ModelAndView list() {
+        return new ModelAndView("list");
     }
 
     @RequestMapping(value = "/delete", method = RequestMethod.DELETE, produces= MediaType.APPLICATION_JSON_VALUE)
