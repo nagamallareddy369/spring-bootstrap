@@ -24,7 +24,8 @@ public class UserController {
     @RequestMapping(value = "/list", method = RequestMethod.GET)
     @ResponseBody
     public ModelAndView list() {
-        return new ModelAndView("list");
+        List<User> users = userService.listUser();
+        return new ModelAndView("list", "users", users);
     }
 
     @RequestMapping(value = "/delete", method = RequestMethod.DELETE, produces= MediaType.APPLICATION_JSON_VALUE)

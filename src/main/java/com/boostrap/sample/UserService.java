@@ -24,7 +24,7 @@ public class UserService {
         return userService;
     }
     private List<User> users = new ArrayList<User>(){{
-        for (int i = 0; i < 20; i++) {
+        for (int i = 0; i < 105; i++) {
             User user = new User();
             user.setId(i + "");
             user.setUsername("username_" + i);
