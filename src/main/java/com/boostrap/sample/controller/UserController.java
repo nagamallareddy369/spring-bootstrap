@@ -2,6 +2,7 @@ package com.boostrap.sample.controller;
 
 import com.boostrap.sample.UserService;
 import com.boostrap.sample.domain.User;
+import com.qq.weixin.mp.aes.WXBizMsgCrypt;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;

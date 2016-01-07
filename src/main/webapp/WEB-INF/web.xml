@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <web-app version="2.5" xmlns="http://java.sun.com/xml/ns/javaee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd">
-    <filter>
+   <!-- <filter>
         <filter-name>sitemesh</filter-name>
         <filter-class>org.sitemesh.config.ConfigurableSiteMeshFilter</filter-class>
     </filter>
@@ -42,6 +42,16 @@
     <servlet-mapping>
         <servlet-name>dispatcher</servlet-name>
         <url-pattern>*.do</url-pattern>
+    </servlet-mapping>-->
+
+    <servlet>
+        <servlet-name>ToncentServlet</servlet-name>
+        <servlet-class>com.boostrap.sample.ToncentServlet</servlet-class>
+    </servlet>
+
+    <servlet-mapping>
+        <servlet-name>ToncentServlet</servlet-name>
+        <url-pattern>/wx</url-pattern>
     </servlet-mapping>
 
     <servlet-mapping>
