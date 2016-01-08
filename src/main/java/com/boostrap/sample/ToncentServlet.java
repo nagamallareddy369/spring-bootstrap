@@ -101,7 +101,6 @@ public class ToncentServlet extends HttpServlet {
         //从请求中读取整个post数据
         InputStream inputStream = request.getInputStream();
         String postData = IOUtils.toString(inputStream, "UTF-8");
-        System.out.println(postData);
 
         String msg = "";
         WXBizMsgCrypt wxcpt = null;
@@ -117,18 +116,26 @@ public class ToncentServlet extends HttpServlet {
         // 调用核心业务类接收消息、处理消息
 //        String respMessage = CoreService.processRequest(msg);
 //        System.out.println("respMessage=" + respMessage);
+        String xml = "<xml>\n" +
+                "   <ToUserName><![CDATA[ZengYi]]></ToUserName>\n" +
+                "   <FromUserName><![CDATA[wxf4774c756a351ff8221]]></FromUserName> \n" +
+                "   <CreateTime>1348831860</CreateTime>\n" +
+                "   <MsgType><![CDATA[text]]></MsgType>\n" +
+                "   <Content><![CDATA[this is a test<br><a href='www.toncentsoft.com'>详情</a>]]></Content>\n" +
+                "</xml>";
+        System.out.println("xml=" + xml);
 
-//        String encryptMsg = "";
-//        try {
-//            //加密回复消息
-//            encryptMsg = wxcpt.EncryptMsg(respMessage, timestamp, nonce);
-//        } catch (AesException e) {
-//            e.printStackTrace();
-//        }
+        String encryptMsg = "";
+        try {
+            //加密回复消息
+            encryptMsg = wxcpt.EncryptMsg(xml, timestamp, nonce);
+        } catch (AesException e) {
+            e.printStackTrace();
+        }
 
         // 响应消息
         PrintWriter out = response.getWriter();
-        out.print("test");
+        out.print(encryptMsg);
         out.close();
 
     }
