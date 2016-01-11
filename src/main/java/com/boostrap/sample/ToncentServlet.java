@@ -1,8 +1,19 @@
 package com.boostrap.sample;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.qq.weixin.mp.aes.AesException;
 import com.qq.weixin.mp.aes.WXBizMsgCrypt;
+import com.riversoft.weixin.common.decrypt.MessageDecryption;
+import com.riversoft.weixin.common.message.XmlMessageHeader;
+import com.riversoft.weixin.common.message.xml.TextXmlMessage;
+import com.riversoft.weixin.common.util.XmlObjectMapper;
+import com.riversoft.weixin.qy.base.AgentSetting;
+import com.riversoft.weixin.qy.base.DefaultSettings;
+import com.riversoft.weixin.qy.message.QyXmlMessages;
 import org.apache.commons.io.IOUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.util.StringUtils;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -12,6 +23,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
 import java.net.URLDecoder;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
@@ -26,6 +38,7 @@ public class ToncentServlet extends HttpServlet {
     String sToken = "8jRvcjG";
     String sCorpID = "wxf4774c756a351ff8";
     String sEncodingAESKey = "N1XM5YHIRS8Tcwsd8ctObavzqiruvxfT4WwotHhXGfQ";
+    private static Logger logger = LoggerFactory.getLogger(ToncentServlet.class);
 
 
     @Override
@@ -86,57 +99,56 @@ public class ToncentServlet extends HttpServlet {
         }
     }
 
+    private String wapperMessage(XmlMessageHeader xmlRequest) throws JsonProcessingException {
+
+        logger.info(xmlRequest.getFromUser());
+        logger.info(xmlRequest.getToUser());
+        logger.info(xmlRequest.getMsgType().name());
+        logger.info(xmlRequest.getCreateTime() + "");
+        TextXmlMessage textXmlMessage = new TextXmlMessage();
+        textXmlMessage.setFromUser(xmlRequest.getToUser());
+        textXmlMessage.setToUser(xmlRequest.getFromUser());
+        textXmlMessage.setCreateTime(new Date());
+        textXmlMessage.setContent("有趣的测试");
+
+        return XmlObjectMapper.defaultMapper().toXml(textXmlMessage);
+//        xmlRequest.
+
+    }
+
     public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        request.setCharacterEncoding("UTF-8");
-        response.setCharacterEncoding("UTF-8");
-        System.out.println("#############################1");
+        String signature = URLDecoder.decode(request.getParameter("msg_signature"), "utf-8");
+        String timestamp = URLDecoder.decode(request.getParameter("timestamp"), "utf-8");
+        String nonce = URLDecoder.decode(request.getParameter("nonce"), "utf-8");
+        String echostr = URLDecoder.decode(request.getParameter("echostr"), "utf-8");
 
-        // 微信加密签名
-        String msg_signature = request.getParameter("msg_signature");
-        // 时间戳
-        String timestamp = request.getParameter("timestamp");
-        // 随机数
-        String nonce = request.getParameter("nonce");
+        logger.info("msg_signature={}, nonce={}, timestamp={}, echostr={}", signature, nonce, timestamp, echostr);
 
-        //从请求中读取整个post数据
-        InputStream inputStream = request.getInputStream();
-        String postData = IOUtils.toString(inputStream, "UTF-8");
+        AgentSetting agentSetting = DefaultSettings.defaultSettings().getAgentSetting();
+        String corpId = DefaultSettings.defaultSettings().getCorpSetting().getCorpId();
+        String result = echostr;
 
-        String msg = "";
-        WXBizMsgCrypt wxcpt = null;
         try {
-            wxcpt = new WXBizMsgCrypt(sToken, sEncodingAESKey, sCorpID);
-            //解密消息
-            msg = wxcpt.DecryptMsg(msg_signature, timestamp, nonce, postData);
-        } catch (AesException e) {
-            e.printStackTrace();
-        }
-        System.out.println("msg=" + msg);
+            MessageDecryption messageDecryption = new MessageDecryption(agentSetting.getToken(), agentSetting.getAesKey(), corpId);
+            if (!StringUtils.isEmpty(echostr)) {
+                String echo = messageDecryption.decryptEcho(signature, timestamp, nonce, echostr);
+                logger.info("消息签名验证成功.");
+                result =  echo;
+            } else {
+                //从请求中读取整个post数据
+                InputStream inputStream = request.getInputStream();
+                String postData = IOUtils.toString(inputStream, "UTF-8");
 
-        // 调用核心业务类接收消息、处理消息
-//        String respMessage = CoreService.processRequest(msg);
-//        System.out.println("respMessage=" + respMessage);
-        String xml = "<xml>\n" +
-                "   <ToUserName><![CDATA[ZengYi]]></ToUserName>\n" +
-                "   <FromUserName><![CDATA[wxf4774c756a351ff8221]]></FromUserName> \n" +
-                "   <CreateTime>" + (System.currentTimeMillis() / 1000) + "</CreateTime>\n" +
-                "   <MsgType><![CDATA[text]]></MsgType>\n" +
-                "   <Content><![CDATA[this is a test<br><a href='www.toncentsoft.com'>详情</a>]]></Content>\n" +
-                "</xml>";
-        System.out.println("xml=" + xml);
+                XmlMessageHeader xmlRequest = QyXmlMessages.fromXml(messageDecryption.decrypt(signature, timestamp, nonce, postData));
+                result = wapperMessage(xmlRequest);
 
-        String encryptMsg = "";
-        try {
-            //加密回复消息
-            encryptMsg = wxcpt.EncryptMsg(xml, timestamp, nonce);
-        } catch (AesException e) {
-            e.printStackTrace();
+            }
+        } catch (Exception e) {
+            logger.error("callback failed.", e);
         }
 
-        // 响应消息
-        PrintWriter out = response.getWriter();
-        out.print(encryptMsg);
-        out.close();
+        response.getWriter().write(result);
+        response.getWriter().close();
 
     }
 
