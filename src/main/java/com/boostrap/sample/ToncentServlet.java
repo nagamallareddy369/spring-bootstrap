@@ -119,7 +119,7 @@ public class ToncentServlet extends HttpServlet {
         String xml = "<xml>\n" +
                 "   <ToUserName><![CDATA[ZengYi]]></ToUserName>\n" +
                 "   <FromUserName><![CDATA[wxf4774c756a351ff8221]]></FromUserName> \n" +
-                "   <CreateTime>1348831860</CreateTime>\n" +
+                "   <CreateTime>" + (System.currentTimeMillis() / 1000) + "</CreateTime>\n" +
                 "   <MsgType><![CDATA[text]]></MsgType>\n" +
                 "   <Content><![CDATA[this is a test<br><a href='www.toncentsoft.com'>详情</a>]]></Content>\n" +
                 "</xml>";
