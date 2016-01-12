@@ -20,6 +20,10 @@
         </layout>
     </appender>-->
 
+    <category name="com.riversoft.weixin.common.WxClient">
+        <level value="debug"/>
+    </category>
+
     <root>
         <priority value="error"/>
         <appender-ref ref="console"/>

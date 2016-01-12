@@ -9,9 +9,12 @@ import com.riversoft.weixin.common.message.MsgType;
 import com.riversoft.weixin.common.message.XmlMessageHeader;
 import com.riversoft.weixin.common.message.xml.TextXmlMessage;
 import com.riversoft.weixin.common.util.XmlObjectMapper;
+import com.riversoft.weixin.qy.base.CorpSetting;
 import com.riversoft.weixin.qy.event.QyClickEvent;
 import com.riversoft.weixin.qy.message.QyXmlMessages;
 import com.riversoft.weixin.qy.message.json.TextMessage;
+import com.riversoft.weixin.qy.oauth2.QyOAuth2s;
+import com.riversoft.weixin.qy.oauth2.bean.QyUser;
 import com.riversoft.weixin.qy.request.QyTextRequest;
 import org.apache.commons.io.IOUtils;
 import org.springframework.util.StringUtils;
@@ -44,31 +47,40 @@ public class ToncentServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-
-        response.setContentType("text/html;charset=utf-8");
-        //response.setCharacterEncoding("utf-8");
-        request.setCharacterEncoding("utf-8");
-
-        System.out.println("=========================doGet");
-        System.out.println("request.getSession().getId() = " + request.getSession().getId());
-        Map parameterMap = request.getParameterMap();
-        Set keySet = parameterMap.keySet();
-        for (Iterator iterator = keySet.iterator(); iterator.hasNext(); ) {
-            String paramName = (String) iterator.next();
-            String paramValue = request.getParameter(paramName);
-
-            System.out.println(paramName + " = " + paramValue);
-        }
-
-
-        //从请求中读取整个post数据
-        InputStream inputStream = request.getInputStream();
-        String postData = IOUtils.toString(inputStream);
-
-        System.out.println("postData = " + postData);
-
-
         try {
+            response.setContentType("text/html;charset=utf-8");
+            //response.setCharacterEncoding("utf-8");
+            request.setCharacterEncoding("utf-8");
+
+            System.out.println("=========================doGet");
+            System.out.println("request.getSession().getId() = " + request.getSession().getId());
+            Map parameterMap = request.getParameterMap();
+            Set keySet = parameterMap.keySet();
+            for (Iterator iterator = keySet.iterator(); iterator.hasNext(); ) {
+                String paramName = (String) iterator.next();
+                String paramValue = request.getParameter(paramName);
+
+                System.out.println(paramName + " = " + paramValue);
+            }
+
+
+            CorpSetting corpSetting = new CorpSetting("wxf4774c756a351ff8", "FrP-Z44ewUnc766wAjWDEHIHHWzT7o_eGCsLKFQFToKTTXVRqwyVrBy4pupVpgVP");
+
+//        String code = QyOAuth2s.with(corpSetting).authenticationUrl("www.toncentsoft.com", "snsapi_userinfo");
+            QyOAuth2s oAuth2s = QyOAuth2s.with(corpSetting);
+            String code = oAuth2s.authenticationUrl("www.toncentsoft.com", "snsapi_userinfo");
+            System.out.println(code);
+            QyUser qyUser = oAuth2s.userInfo(code);
+            System.out.println("qyUser = " + qyUser);
+
+
+            //从请求中读取整个post数据
+            InputStream inputStream = request.getInputStream();
+            String postData = IOUtils.toString(inputStream);
+
+            System.out.println("postData = " + postData);
+
+
             WXBizMsgCrypt wxcpt = new WXBizMsgCrypt(sToken, sEncodingAESKey, sCorpID);
 
 
@@ -92,7 +104,7 @@ public class ToncentServlet extends HttpServlet {
                 e.printStackTrace();
             }
 
-        } catch (AesException e1) {
+        } catch (Exception e1) {
             e1.printStackTrace();
         }
     }
@@ -105,7 +117,7 @@ public class ToncentServlet extends HttpServlet {
         System.out.println(xmlRequest.getCreateTime() + "");
 
         if (MsgType.event.equals(xmlRequest.getMsgType()) && xmlRequest instanceof ClickEvent) {
-            ClickEvent clickEvent = (ClickEvent)xmlRequest;
+            ClickEvent clickEvent = (ClickEvent) xmlRequest;
             String eventKey = clickEvent.getEventKey();
             if ("task".equals(eventKey)) {
 
@@ -123,12 +135,21 @@ public class ToncentServlet extends HttpServlet {
     }
 
     public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        request.setCharacterEncoding("UTF-8");
-        response.setCharacterEncoding("UTF-8");
-        System.out.println("request.getSession().getId() = " + request.getSession().getId());
-
-
         try {
+            request.setCharacterEncoding("UTF-8");
+            response.setCharacterEncoding("UTF-8");
+            System.out.println("request.getSession().getId() = " + request.getSession().getId());
+
+            CorpSetting corpSetting = new CorpSetting("wxf4774c756a351ff8", "FrP-Z44ewUnc766wAjWDEHIHHWzT7o_eGCsLKFQFToKTTXVRqwyVrBy4pupVpgVP");
+
+//        String code = QyOAuth2s.with(corpSetting).authenticationUrl("www.toncentsoft.com", "snsapi_userinfo");
+            QyOAuth2s oAuth2s = QyOAuth2s.with(corpSetting);
+            String code = oAuth2s.authenticationUrl("www.toncentsoft.cn", "snsapi_userinfo");
+            System.out.println(code);
+            QyUser qyUser = oAuth2s.userInfo(code);
+            System.out.println("qyUser = " + qyUser);
+
+
             String signature = request.getParameter("msg_signature");
             String timestamp = request.getParameter("timestamp");
             String nonce = request.getParameter("nonce");
