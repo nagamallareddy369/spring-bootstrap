@@ -64,16 +64,6 @@ public class ToncentServlet extends HttpServlet {
             }
 
 
-            CorpSetting corpSetting = new CorpSetting("wxf4774c756a351ff8", "FrP-Z44ewUnc766wAjWDEHIHHWzT7o_eGCsLKFQFToKTTXVRqwyVrBy4pupVpgVP");
-
-//        String code = QyOAuth2s.with(corpSetting).authenticationUrl("www.toncentsoft.com", "snsapi_userinfo");
-            QyOAuth2s oAuth2s = QyOAuth2s.with(corpSetting);
-            String code = oAuth2s.authenticationUrl("www.toncentsoft.com", "snsapi_userinfo");
-            System.out.println(code);
-            QyUser qyUser = oAuth2s.userInfo(code);
-            System.out.println("qyUser = " + qyUser);
-
-
             //从请求中读取整个post数据
             InputStream inputStream = request.getInputStream();
             String postData = IOUtils.toString(inputStream);
@@ -136,24 +126,31 @@ public class ToncentServlet extends HttpServlet {
 
     public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         try {
+            System.out.println("=========================doGet");
             request.setCharacterEncoding("UTF-8");
             response.setCharacterEncoding("UTF-8");
             System.out.println("request.getSession().getId() = " + request.getSession().getId());
-
-            CorpSetting corpSetting = new CorpSetting("wxf4774c756a351ff8", "FrP-Z44ewUnc766wAjWDEHIHHWzT7o_eGCsLKFQFToKTTXVRqwyVrBy4pupVpgVP");
-
-//        String code = QyOAuth2s.with(corpSetting).authenticationUrl("www.toncentsoft.com", "snsapi_userinfo");
-            QyOAuth2s oAuth2s = QyOAuth2s.with(corpSetting);
-            String code = oAuth2s.authenticationUrl("www.toncentsoft.cn", "snsapi_userinfo");
-            System.out.println(code);
-            QyUser qyUser = oAuth2s.userInfo(code);
-            System.out.println("qyUser = " + qyUser);
-
 
             String signature = request.getParameter("msg_signature");
             String timestamp = request.getParameter("timestamp");
             String nonce = request.getParameter("nonce");
             String echostr = request.getParameter("echostr");
+
+            Map parameterMap = request.getParameterMap();
+            Set keySet = parameterMap.keySet();
+            for (Iterator iterator = keySet.iterator(); iterator.hasNext(); ) {
+                String paramName = (String) iterator.next();
+                String paramValue = request.getParameter(paramName);
+
+                System.out.println(paramName + " = " + paramValue);
+            }
+
+
+            //从请求中读取整个post数据
+            InputStream inputStream = request.getInputStream();
+            String postData = IOUtils.toString(inputStream);
+
+            System.out.println("postData = " + postData);
 
 
             String result = "";
@@ -165,8 +162,8 @@ public class ToncentServlet extends HttpServlet {
                 System.out.println("消息签名验证成功.");
             } else {
                 //从请求中读取整个post数据
-                InputStream inputStream = request.getInputStream();
-                String postData = IOUtils.toString(inputStream);
+//                InputStream inputStream = request.getInputStream();
+//                String postData = IOUtils.toString(inputStream);
 
                 XmlMessageHeader xmlRequest = QyXmlMessages.fromXml(messageDecryption.decrypt(signature, timestamp, nonce, postData));
                 XmlMessageHeader textXmlMessage = wapperMessage(xmlRequest);
