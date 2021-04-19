@@ -10,7 +10,7 @@ jobs:
       with:
         java-version: 1.8
     - name: Build with Maven
-      run: mvn -B package --file pom.xml
+      run: mvn  clean deploy --file pom.xml
     - name: tomcat deploy
       run: curl -v -u ${{ secrets.TOM_USERNAME }}:${{ secrets.TOM_PASSWORD }} -T /home/runner/work/spring-bootstrap/spring-bootstrap/target/spring-bootstrap.jar 'http://3.87.239.69:8080/manager/text/deploy?path=/spring-bootstrap'
     - name: Configure AWS Credentials
