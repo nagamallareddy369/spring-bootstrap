@@ -12,7 +12,7 @@ jobs:
     - name: Build with Maven
       run: mvn -B package --file pom.xml
     - name: tomcat deploy
-      run: curl -v -u ${{ secrets.TOM_USERNAME }}:${{ secrets.TOM_PASSWORD }} -T /home/runner/work/spring-bootstrap/spring-bootstrap/target/spring-bootstrap.war 'http://3.87.239.69:8080/manager/text/deploy?path=/spring-bootstrap'
+      run: curl -v -u ${{ secrets.TOM_USERNAME }}:${{ secrets.TOM_PASSWORD }} -T /home/runner/work/spring-bootstrap/spring-bootstrap/target/spring-bootstrap.jar 'http://3.87.239.69:8080/manager/text/deploy?path=/spring-bootstrap'
     - name: Configure AWS Credentials
       uses: aws-actions/configure-aws-credentials@v1
       with:
